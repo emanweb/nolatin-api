@@ -32,54 +32,68 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
   }
 
-   // Escape special characters in the form data to prevent SQL injection attacks
+  // Escape special characters in the form data to prevent SQL injection attacks
   $friendly_name = mysqli_real_escape_string($conn, $friendly_name);
   $json_content = mysqli_real_escape_string($conn, $json_content);
   $emailaddress = mysqli_real_escape_string($conn, $emailaddress);
+  
+  // Check and post to backups table
+    // Get backup list for friendly name
+    $backups_sql = "SELECT version FROM nolatin_backups WHERE friendly_name = '$friendly_name'";
 
-  $v0_friendly_name = $friendly_name + "/v0"
-  
-  // Construct the v0 SQL query
-  $v0_sql = "INSERT INTO nolatin_exports (friendly_name, json_content, emailaddress) VALUES ('$v0_friendly_name', '$json_content', '$emailaddress')";
-  
-  // Create v0
-  try {
-    if (mysqli_query($conn, $v0_sql)) {
-      echo "Version 0 created successfully";
-    } else {
-      echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+    $backups_result = mysqli_query($conn, $backups_sql);
+    $backups = array();
+    while($row = mysqli_fetch_assoc($backups_result)) {
+      $backups[] = $row;
     }
-  } catch (mysqli_sql_exception $e) {
-    if ($e->getCode() == 1062) { // 1062 is the MySQL error code for duplicate entry
-      // Handle the duplicate entry error here
-      echo "Error: Duplicate key. Version 0 already exists";
-      // You may want to display an error message to the user or log the error
-    } else {
-      // Handle other MySQL errors here
-    }
-  }
-  
-  // Construct the update SQL queries
-  $update_sql = "UPDATE nolatin_exports SET json_content = '$json_content' WHERE friendly_name = '$friendly_name'";
 
+    if (count($backups) == 0) {
+      // If none exist, create v0 & v1
+        // Get current version
+        $current_sql = "SELECT json_content FROM nolatin_exports WHERE friendly_name = '$friendly_name'";
+        $current_result = mysqli_query($conn, $current_sql);
+        //TODO: FIX JSON CONVERSION
+        $current_json = mysqli_fetch_assoc($current_result)[0];
+        // Post v0
+        $post_v0_sql = "INSERT INTO nolatin_backups (friendly_name, json_content, version) VALUES ('$friendly_name', '$current_json', 0)";
+        try {
+          if (mysqli_query($conn, $post_v0_sql)) {
+            echo "v0 created successfully";
+          } else {
+            echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+          }
+        } catch (mysqli_sql_exception $e) {
+          echo "Error: " . $e;
+        }
+        // Post v1
+        $post_v1_sql = "INSERT INTO nolatin_backups (friendly_name, json_content, version) VALUES ('$friendly_name', '$json_content', 1)";
+        try {
+          if (mysqli_query($conn, $post_v1_sql)) {
+            echo "v1 created successfully";
+          } else {
+            echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+          }
+        } catch (mysqli_sql_exception $e) {
+          echo "Error: " . $e;
+        }
+    } else {
+      // If backups do exist, create new version
+        $version_num = count($backups);
+        $post_new_sql = "INSERT INTO nolatin_backups (friendly_name, json_content, version) VALUES ('$friendly_name', '$json_content', '$version_num')";
+        try {
+          if (mysqli_query($conn, $post_v1_sql)) {
+            echo "v1 created successfully";
+          } else {
+            echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+          }
+        } catch (mysqli_sql_exception $e) {
+          echo "Error: " . $e;
+        }
+    }
+  
+    
   // Update original
-  try {
-    if (mysqli_query($conn, $update_sql)) {
-      echo "Original updated successfully";
-    } else {
-      echo "Error: " . $sql . "<br>" . mysqli_error($conn);
-    }
-  } catch (mysqli_sql_exception $e) {
-    echo "Error: " . $e;
-  }
-
-  
-  // TO_DO: FINISH THIS PORTION
-  // Construct the new version SQL queries 
-  $new_version_friendly_name = $friendly_name + "/v1"
-  $new_version_sql = "INSERT INTO nolatin_exports (friendly_name, json_content, emailaddress) VALUES ('$new_version_friendly_name', '$json_content', '$emailaddress')";
-
-  // Create new version backup
+  $update_sql = "UPDATE nolatin_exports SET json_content = '$json_content' WHERE friendly_name = '$friendly_name'";
   try {
     if (mysqli_query($conn, $update_sql)) {
       echo "Original updated successfully";
