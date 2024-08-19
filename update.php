@@ -61,7 +61,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           if (mysqli_query($conn, $post_v0_sql)) {
             echo "v0 created successfully";
           } else {
-            echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+            echo "Error: " . $post_v0_sql . "<br>" . mysqli_error($conn);
           }
         } catch (mysqli_sql_exception $e) {
           echo "Error: " . $e;
@@ -72,7 +72,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           if (mysqli_query($conn, $post_v1_sql)) {
             echo "v1 created successfully";
           } else {
-            echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+            echo "Error: " . $post_v1_sql . "<br>" . mysqli_error($conn);
           }
         } catch (mysqli_sql_exception $e) {
           echo "Error: " . $e;
@@ -84,7 +84,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           if (mysqli_query($conn, $set_old_inactive_sql)) {
             echo "Set old versions to inactive successfully";
           } else {
-            echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+            echo "Error: " . $set_old_inactive_sql . "<br>" . mysqli_error($conn);
           }
         } catch (mysqli_sql_exception $e) {
           echo "Error: " . $e;
@@ -95,7 +95,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           if (mysqli_query($conn, $post_new_sql)) {
             echo "v1 created successfully";
           } else {
-            echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+            echo "Error: " . $post_new_sql . "<br>" . mysqli_error($conn);
           }
         } catch (mysqli_sql_exception $e) {
           echo "Error: " . $e;
@@ -109,7 +109,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (mysqli_query($conn, $update_sql)) {
       echo "Original updated successfully";
     } else {
-      echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+      echo "Error: " . $update_sql . "<br>" . mysqli_error($conn);
     }
   } catch (mysqli_sql_exception $e) {
     echo "Error: " . $e;
