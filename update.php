@@ -1,3 +1,4 @@
+<?php
 // list of allowed IP addresses
 $allowed_ips = array('184.171.244.81', '68.108.129.180');
 
