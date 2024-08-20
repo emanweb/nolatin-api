@@ -62,6 +62,8 @@ try {
     while($row = mysqli_fetch_assoc($email_result)) {
         $rows[] = $row;
     }
+    echo($email_result);
+    echo($email_array[0]);
     if ($email_array[0] == $emailaddress) {
       $json_data = "Friendly name already exists. Would you like to update?";
     } else {
