@@ -59,13 +59,14 @@ try {
     $email_sql = "SELECT emailaddress FROM nolatin_exports WHERE friendly_name = '$friendly_name'";
     $email_result = mysqli_query($conn, $email_sql);
     $email_array = array();
+    echo($email_array);
     while($row = mysqli_fetch_assoc($email_result)) {
         $rows[] = $row;
     }
     if ($email_array[0] == $emailaddress) {
       $json_data = "Friendly name already exists. Would you like to update?";
     } else {
-      $json_data = "Friendly name already exists. " . implode($email_result.fetch_all());
+      $json_data = "Friendly name already exists.";
     }
   } else {
     // Handle other MySQL errors here
