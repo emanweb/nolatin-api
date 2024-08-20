@@ -65,7 +65,7 @@ try {
     if ($email_array[0] == $emailaddress) {
       $json_data = "Friendly name already exists. Would you like to update?";
     } else {
-      $json_data = "Friendly name already exists. " . $email_array[0];
+      $json_data = "Friendly name already exists. " . $email_result;
     }
   } else {
     // Handle other MySQL errors here
