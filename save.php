@@ -53,12 +53,17 @@ try {
   } else {
     $json_data =  "Error Inserting data: " . $sql . " " . mysqli_error($conn) ;
   }
- }catch (mysqli_sql_exception $e) {
+ } catch (mysqli_sql_exception $e) {
   if ($e->getCode() == 1062) { // 1062 is the MySQL error code for duplicate entry
     // Handle the duplicate entry error here
     $email_sql = "SELECT emailaddress FROM nolatin_exports WHERE friendly_name = '$friendly_name'";
     $email_result = mysqli_query($conn, $email_sql);
     $email_array = array();
+    echo("EMAIL RESULT");
+    echo($email_result);
+    echo("EMAIL RESULT FETCH");
+    echo(mysqli_fetch_assoc($email_result));
+    echo("EMAIL ARRAY");
     echo($email_array);
     while($row = mysqli_fetch_assoc($email_result)) {
         $rows[] = $row;
