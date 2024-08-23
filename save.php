@@ -58,13 +58,10 @@ try {
     // Handle the duplicate entry error here
     $email_sql = "SELECT emailaddress FROM nolatin_exports WHERE friendly_name = '$friendly_name'";
     $email_result = mysqli_query($conn, $email_sql);
-    $email_array = array();
-    echo("EMAIL RESULT");
-    echo($email_result);
-    echo("EMAIL RESULT FETCH");
-    echo(mysqli_fetch_assoc($email_result));
-    echo("EMAIL ARRAY");
-    echo($email_array);
+    syslog(LOG_INFO, "EMAIL RESULT");
+    syslog(LOG_INFO, $email_result);
+    syslog(LOG_INFO, "EMAIL RESULT FETCH");
+    syslog(LOG_INFO, mysqli_fetch_assoc($email_result));
     while($row = mysqli_fetch_assoc($email_result)) {
         $rows[] = $row;
     }
