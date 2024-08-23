@@ -58,14 +58,9 @@ try {
     // Handle the duplicate entry error here
     $email_sql = "SELECT emailaddress FROM nolatin_exports WHERE friendly_name = '$friendly_name'";
     $email_result = mysqli_query($conn, $email_sql);
-    syslog(LOG_INFO, "EMAIL RESULT TYPE");
-    syslog(LOG_INFO, gettype($email_result));
     syslog(LOG_INFO, "EMAIL RESULT FETCH");
-    syslog(LOG_INFO, mysqli_fetch_assoc($email_result));
-    while($row = mysqli_fetch_assoc($email_result)) {
-        $rows[] = $row;
-    }
-    if ($email_array[0] == $emailaddress) {
+    syslog(LOG_INFO, mysqli_fetch_assoc($email_result)[0]);
+    if (mysqli_fetch_assoc($email_result)[0] == $emailaddress) {
       $json_data = "Friendly name already exists. Would you like to update?";
     } else {
       $json_data = "Friendly name already exists.";
