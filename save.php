@@ -55,14 +55,15 @@ try {
   }
  } catch (mysqli_sql_exception $e) {
   if ($e->getCode() == 1062) { // 1062 is the MySQL error code for duplicate entry
-    // Handle the duplicate entry error here
+    // On duplicate entry, fetch the email address of the original
     $email_sql = "SELECT emailaddress FROM nolatin_exports WHERE friendly_name = '$friendly_name'";
     $email_result = mysqli_query($conn, $email_sql);
-    syslog(LOG_INFO, "EMAIL RESULT FETCH");
-    syslog(LOG_INFO, mysqli_fetch_assoc($email_result)[0]);
+    // Compare sql result to submitted email address
     if (mysqli_fetch_assoc($email_result)[0] == $emailaddress) {
+      // If emails match
       $json_data = "Friendly name already exists. Would you like to update?";
     } else {
+      // If emails don't match
       $json_data = "Friendly name already exists.";
     }
   } else {
