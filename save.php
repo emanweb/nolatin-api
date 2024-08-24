@@ -1,78 +1,93 @@
 <?php
 header("Access-Control-Allow-Origin: *");
 header('Content-Type: application/json');
-// list of allowed IP addresses
-$allowed_ips = array('');
 
-// get the user's IP address
-$user_ip = $_SERVER['REMOTE_ADDR'];
+// Function to log messages
+function logMessage($message, $type = 'INFO') {
+    $logFile = 'app.log';
+    $timestamp = date('Y-m-d H:i:s');
+    file_put_contents($logFile, "[$timestamp] [$type] $message\n", FILE_APPEND);
+}
 
-// check if the user's IP is in the list of allowed IPs
-//if (!in_array($user_ip, $allowed_ips)) {
-  // if the user's IP is not in the list of allowed IPs, show an error message and exit
-//  die("Sorry, access denied. Your IP address ($user_ip) is not allowed to access this page.");
-//}
-
-if (!isset($_POST['localform'])){
-  // if the form was submitted via JSON
-  $rest_json = file_get_contents("php://input");
-  $_POST = json_decode($rest_json, true);
+if (!isset($_POST['localform'])) {
+    $rest_json = file_get_contents("php://input");
+    $_POST = json_decode($rest_json, true);
 }
 
 if ($_POST) {
-  // Retrieve the form data using POST
-  $friendly_name = $_POST["friendly_name"];
-  $json_content = $_POST["json_content"];
-  $emailaddress = $_POST["emailaddress"];
+    // Input validation
+    $friendly_name = filter_var($_POST["friendly_name"] ?? '', FILTER_SANITIZE_STRING);
+    $json_content = $_POST["json_content"] ?? '';
+    $emailaddress = filter_var($_POST["emailaddress"] ?? '', FILTER_VALIDATE_EMAIL);
 
-  // Validate form data (optional)
-  // ...
-
-  // Connect to MySQL database
-  include ('../../wo-config.php');
-  $conn = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
-
-  // Check if connection was successful
-  if (!$conn) {
-    die("Connection failed: " . mysqli_connect_error());
-  }
-
-   // Escape special characters in the form data to prevent SQL injection attacks
-  $friendly_name = mysqli_real_escape_string($conn, $friendly_name);
-  $json_content = mysqli_real_escape_string($conn, $json_content);
-  $emailaddress = mysqli_real_escape_string($conn, $emailaddress);
-
-
-  // Construct the SQL query
-  $sql = "INSERT INTO nolatin_exports (friendly_name, json_content, emailaddress) VALUES ('$friendly_name', '$json_content', '$emailaddress')";
-
-  // Execute the SQL query
-try {
-  if (mysqli_query($conn, $sql)) {
-    $json_data = "Your link was created successfuly";
-  } else {
-    $json_data =  "Error Inserting data: " . $sql . " " . mysqli_error($conn) ;
-  }
- } catch (mysqli_sql_exception $e) {
-  if ($e->getCode() == 1062) { // 1062 is the MySQL error code for duplicate entry
-    // On duplicate entry, fetch the email address of the original
-    $email_sql = "SELECT emailaddress FROM nolatin_exports WHERE friendly_name = '$friendly_name'";
-    $email_result = mysqli_query($conn, $email_sql);
-    // Compare sql result to submitted email address
-    if (mysqli_fetch_assoc($email_result)[0] == $emailaddress) {
-      // If emails match
-      $json_data = "Friendly name already exists. Would you like to update?";
-    } else {
-      // If emails don't match
-      $json_data = "Friendly name already exists.";
+    if (empty($friendly_name) || empty($json_content) || !$emailaddress) {
+        $response = ["error" => "Invalid or missing input data"];
+        echo json_encode($response);
+        logMessage("Invalid input data received", "ERROR");
+        exit;
     }
-  } else {
-    // Handle other MySQL errors here
-    $json_data = "Error exception: " . $sql . " " . mysqli_error($conn) ;
-  }
-}
-  echo json_encode($json_data);
-  // Close the database connection
-  mysqli_close($conn);
+
+    // Connect to MySQL database
+    include('../../wo-config.php');
+    $conn = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+
+    if (!$conn) {
+        $response = ["error" => "Database connection failed"];
+        echo json_encode($response);
+        logMessage("Database connection failed: " . mysqli_connect_error(), "ERROR");
+        exit;
+    }
+
+    // Prepare statement for insertion
+    $insert_stmt = $conn->prepare("INSERT INTO nolatin_exports (friendly_name, json_content, emailaddress) VALUES (?, ?, ?)");
+    $insert_stmt->bind_param("sss", $friendly_name, $json_content, $emailaddress);
+
+    // Prepare statement for update
+    $update_stmt = $conn->prepare("UPDATE nolatin_exports SET json_content = ?, emailaddress = ? WHERE friendly_name = ?");
+    $update_stmt->bind_param("sss", $json_content, $emailaddress, $friendly_name);
+
+    // Prepare statement for email check
+    $email_check_stmt = $conn->prepare("SELECT emailaddress FROM nolatin_exports WHERE friendly_name = ?");
+    $email_check_stmt->bind_param("s", $friendly_name);
+
+    try {
+        if ($insert_stmt->execute()) {
+            $response = ["success" => "Your link was created successfully"];
+            logMessage("New entry created: $friendly_name");
+        }
+    } catch (mysqli_sql_exception $e) {
+        if ($e->getCode() == 1062) { // Duplicate entry
+            $email_check_stmt->execute();
+            $result = $email_check_stmt->get_result();
+            $existing_email = $result->fetch_assoc()['emailaddress'];
+
+            if ($existing_email == $emailaddress) {
+                if ($update_stmt->execute()) {
+                    $response = ["success" => "Your link was updated successfully"];
+                    logMessage("Entry updated: $friendly_name");
+                } else {
+                    $response = ["error" => "Failed to update existing entry"];
+                    logMessage("Failed to update entry: $friendly_name", "ERROR");
+                }
+            } else {
+                $response = ["error" => "Friendly name already exists with a different email"];
+                logMessage("Duplicate friendly name attempt: $friendly_name", "WARNING");
+            }
+        } else {
+            $response = ["error" => "An error occurred while processing your request"];
+            logMessage("MySQL Error: " . $e->getMessage(), "ERROR");
+        }
+    }
+
+    echo json_encode($response);
+
+    $insert_stmt->close();
+    $update_stmt->close();
+    $email_check_stmt->close();
+    mysqli_close($conn);
+} else {
+    $response = ["error" => "No POST data received"];
+    echo json_encode($response);
+    logMessage("No POST data received", "WARNING");
 }
 ?>
