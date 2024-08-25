@@ -43,36 +43,30 @@ if ($_POST) {
   $emailaddress = mysqli_real_escape_string($conn, $emailaddress);
 
 
-  // Construct the SQL query
-  $sql = "INSERT INTO nolatin_exports (friendly_name, json_content, emailaddress) VALUES ('$friendly_name', '$json_content', '$emailaddress')";
+  // Check if the email already exists in the table
+  // todo: is this checking friendly name or email in the db ?
+  $sql_check = "SELECT emailaddress FROM nolatin_exports WHERE friendly_name = ?";
+  $stmt = $conn->prepare($sql_check);
+  $stmt->bind_param("s", $emailaddress);
+  $stmt->execute();
+  $result = $stmt->get_result();
 
-  // Execute the SQL query
-try {
-  if (mysqli_query($conn, $sql)) {
+  if ($result->num_rows > 0) {
+  // Email exists, fetch the existing record
+    $existing_friendly_name = $result->fetch_assoc();
+    $json_data = "Friendly name already exists. Would you like to update?";
+    // here I guess it will be handled in the front end to use the update.php
+  }
+  else { //friendly name doesn't exist. Add it.
+    $sql_insert = "INSERT INTO nolatin_exports (friendly_name, json_content, emailaddress) VALUES ('$friendly_name', '$json_content', '$emailaddress')";
+    $stmt_insert = $conn->prepare($sql_insert);
+    $stmt_insert->bind_param("sss", $friendly_name, $json_content, $emailaddress);
+    $stmt_insert->execute();
     $json_data = "Your link was created successfuly";
-  } else {
-    $json_data =  "Error Inserting data: " . $sql . " " . mysqli_error($conn) ;
   }
- } catch (mysqli_sql_exception $e) {
-  if ($e->getCode() == 1062) { // 1062 is the MySQL error code for duplicate entry
-    // On duplicate entry, fetch the email address of the original
-    $email_sql = "SELECT emailaddress FROM nolatin_exports WHERE friendly_name = '$friendly_name'";
-    $email_result = mysqli_query($conn, $email_sql);
-    // Compare sql result to submitted email address
-    if (mysqli_fetch_assoc($email_result)[0] == $emailaddress) {
-      // If emails match
-      $json_data = "Friendly name already exists. Would you like to update?";
-    } else {
-      // If emails don't match
-      $json_data = "Friendly name already exists.";
-    }
-  } else {
-    // Handle other MySQL errors here
-    $json_data = "Error exception: " . $sql . " " . mysqli_error($conn) ;
-  }
-}
+
   echo json_encode($json_data);
   // Close the database connection
-  mysqli_close($conn);
+  $stmt->close();
+  $conn->close();
 }
-?>
