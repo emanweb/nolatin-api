@@ -54,7 +54,7 @@ if ($_POST) {
   if ($result->num_rows > 0) {
   // Email exists, fetch the existing record
     $existing_friendly_name = $result->fetch_assoc();
-    $json_data = "Friendly name already exists. Would you like to update? $existing_friendly_name";
+    $json_data = "Friendly name already exists. Would you like to update?";
     // here I guess it will be handled in the front end to use the update.php
   }
   else { //friendly name doesn't exist. Add it.
