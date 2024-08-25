@@ -60,9 +60,6 @@ if ($_POST) {
           $json_data = "Friendly name already exists. Would you like to update?";
       } else {
           $json_data = "Friendly name already exists.";
-          $json_data = $json_data . " email posted: " . $_POST["emailaddress"];
-          $json_data = $json_data . " email database: " . $existing_email['emailaddress'];
-
       }
   }
     else { //friendly name doesn't exist. Add it.
