@@ -51,11 +51,18 @@ if ($_POST) {
   $stmt->execute();
   $result = $stmt->get_result();
 
+  error_log("ROWS");
+  error_log($result->num_rows);
+
   if ($result->num_rows > 0) {
-  // Email exists, fetch the existing record
-    $existing_friendly_name = $result->fetch_assoc();
-    $json_data = "Friendly name already exists. Would you like to update?";
+    // Email exists, fetch the existing record
+    $existing_email = $result->fetch_assoc();
     // here I guess it will be handled in the front end to use the update.php
+    if ($existing_email == $emailaddress) {
+      $json_data = "Friendly name already exists. Would you like to update?";
+    } else {
+      $json_data = "Friendly name already exists.";
+    }
   }
   else { //friendly name doesn't exist. Add it.
     $sql_insert = "INSERT INTO nolatin_exports (friendly_name, json_content, emailaddress) VALUES ('$friendly_name', '$json_content', '$emailaddress')";
