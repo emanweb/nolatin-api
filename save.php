@@ -63,7 +63,7 @@ if ($_POST) {
     }
   }
   else { //friendly name doesn't exist. Add it.
-    $sql_insert = "INSERT INTO nolatin_exports (friendly_name, json_content, emailaddress) VALUES ('$friendly_name', '$json_content', '$emailaddress')";
+    $sql_insert = "INSERT INTO nolatin_exports (friendly_name, json_content, emailaddress) VALUES (?)";
     $stmt_insert = $conn->prepare($sql_insert);
     $stmt_insert->bind_param("sss", $friendly_name, $json_content, $emailaddress);
     $stmt_insert->execute();
