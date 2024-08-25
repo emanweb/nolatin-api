@@ -47,7 +47,7 @@ if ($_POST) {
   // todo: is this checking friendly name or email in the db ?
   $sql_check = "SELECT emailaddress FROM nolatin_exports WHERE friendly_name = ?";
   $stmt = $conn->prepare($sql_check);
-  $stmt->bind_param("s", $emailaddress);
+  $stmt->bind_param("s", $friendly_name);
   $stmt->execute();
   $result = $stmt->get_result();
 
