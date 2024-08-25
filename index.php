@@ -4,7 +4,7 @@ include ('../../wo-config.php');
 $conn = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 // Step 2: Write a SQL query to fetch the data from the MySQL table
 $friendly_name = mysqli_real_escape_string($conn, $_GET['friendly_name']);
-$sql = "SELECT JSON_UNQUOTE(json_content) FROM nolatin_exports where friendly_name  = '".$friendly_name."'";
+$sql = "SELECT json_content FROM nolatin_exports where friendly_name  = '".$friendly_name."'";
 // Step 3: Execute the SQL query using PHP
 $result = mysqli_query($conn, $sql);
 // Step 4: Convert the query result into a PHP array
