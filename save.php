@@ -61,7 +61,7 @@ if ($_POST) {
       } else {
           $json_data = "Friendly name already exists.";
           $json_data = $json_data . " email posted: " . $_POST["emailaddress"];
-          $json_data = $json_data . " email database: " . $existing_email;
+          $json_data = $json_data . " email database: " . $existing_email['emailaddress'];
 
       }
   }
