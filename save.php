@@ -56,7 +56,7 @@ if ($_POST) {
       $existing_email = $result->fetch_assoc();
       // here I guess it will be handled in the front end to use the update.php
       // $json_data = "Friendly name already exists. Would you like to update?";
-      if ($existing_email == $emailaddress) {
+      if ($existing_email['emailaddress'] == $emailaddress) {
           $json_data = "Friendly name already exists. Would you like to update?";
       } else {
           $json_data = "Friendly name already exists.";
