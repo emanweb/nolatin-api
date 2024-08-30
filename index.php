@@ -16,14 +16,22 @@ while($row = mysqli_fetch_assoc($result)) {
 $json_data = json_encode($rows);
 // Step 6: Set the Content-Type header to application/json
 header('Content-Type: application/json');
+
 // Allow any domain to access
 header("Access-Control-Allow-Origin: *");
+
 
 // Allow specific methods
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 
 // Allow specific headers
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
+
+// Handle preflight requests
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    http_response_code(204);
+    exit;
+}
 
 // Step 7: Output the JSON string
 echo $json_data;
