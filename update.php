@@ -1,19 +1,27 @@
 <?php
+header("Access-Control-Allow-Origin: *");
+header('Content-Type: application/json');
 // list of allowed IP addresses
-$allowed_ips = array('184.171.244.81', '68.108.129.180', );
+$allowed_ips = array('');
 
 // get the user's IP address
 $user_ip = $_SERVER['REMOTE_ADDR'];
 
 // check if the user's IP is in the list of allowed IPs
-if (!in_array($user_ip, $allowed_ips)) {
-    // if the user's IP is not in the list of allowed IPs, show an error message and exit
-    die("Access denied. Your IP address ($user_ip) is not allowed to access this page.");
+// if (!in_array($user_ip, $allowed_ips)) {
+//     // if the user's IP is not in the list of allowed IPs, show an error message and exit
+//     die("Access denied. Your IP address ($user_ip) is not allowed to access this page.");
+// }
+
+if (!isset($_POST['localform'])){
+  // if the form was submitted via JSON
+  $rest_json = file_get_contents("php://input");
+  $_POST = json_decode($rest_json, true);
 }
 
 // Check if the form was submitted via POST
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if ($_POST) {
   // Retrieve the form data using POST
   $friendly_name = $_POST["friendly_name"];
   $json_content = $_POST["json_content"];
@@ -28,9 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
   // Check if connection was successful
   if (!$conn) {
-
     die("Connection failed: " . mysqli_connect_error());
-
   }
 
   // Escape special characters in the form data to prevent SQL injection attacks
