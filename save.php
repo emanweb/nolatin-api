@@ -38,9 +38,9 @@ if ($_POST) {
   }
 
    // Escape special characters in the form data to prevent SQL injection attacks
-  $friendly_name = mysqli_real_escape_string($conn, $friendly_name);
-  $json_content = mysqli_real_escape_string($conn, $json_content);
-  $emailaddress = mysqli_real_escape_string($conn, $emailaddress);
+  $friendly_name = htmlspecialchars($conn, $friendly_name);
+  $json_content = htmlspecialchars($conn, $json_content);
+  $emailaddress = htmlspecialchars($conn, $emailaddress);
 
 
   // Check if the email already exists in the table
