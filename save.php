@@ -57,7 +57,7 @@ if ($_POST) {
       // here I guess it will be handled in the front end to use the update.php
       // $json_data = "Friendly name already exists. Would you like to update?";
       if ($existing_email['emailaddress'] == $emailaddress) {
-          $json_data = "Friendly name already exists. Would you like to update?";
+          $json_data = "Friendly name already exists. Would you like to update $friendly_name?";
       } else {
           $json_data = "Friendly name already exists.";
       }
@@ -67,7 +67,7 @@ if ($_POST) {
     $stmt_insert = $conn->prepare($sql_insert);
     $stmt_insert->bind_param("sss", $friendly_name, $json_content, $emailaddress);
     $stmt_insert->execute();
-    $json_data = "Your link was created successfuly";
+    $json_data = "Your link was created successfully";
   }
 
   echo json_encode($json_data);
