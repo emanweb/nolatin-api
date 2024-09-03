@@ -13,7 +13,7 @@ while($row = mysqli_fetch_assoc($result)) {
     $rows[] = $row;
 }
 // Step 5: Convert the PHP array into JSON format
-$json_data = json_decode($rows);
+$json_data = json_encode($rows);
 
 // Step 6: Set the Content-Type header to application/json
 header('Content-Type: application/json');
