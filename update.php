@@ -64,15 +64,15 @@ if ($_POST) {
         $current_json = $current_result->fetch_all(MYSQLI_ASSOC);
 
         // Post v0
-        $v0 = 0
-        $inactive = 'inactive'
+        $v0 = 0;
+        $inactive = 'inactive';
         $post_v0_sql = "INSERT INTO nolatin_backups (friendly_name, json_content, version, status) VALUES (?,?,?,?)";
         $post_v0_stmt = $conn->prepare($post_v0_sql);
         $post_v0_stmt->bind_param("ssis", $friendly_name, $current_json, $v0, $inactive);
         $post_v0_stmt->execute();
 
         // Post v1
-        $v1 = 1
+        $v1 = 1;
         $post_v1_sql = "INSERT INTO nolatin_backups (friendly_name, json_content, version) VALUES (?,?,?)";
         $post_v1_stmt = $conn->prepare($post_v1_sql);
         $post_v1_stmt->bind_param("ssi", $friendly_name, $json_content, $v1);
