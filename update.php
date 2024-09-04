@@ -87,7 +87,7 @@ if ($_POST) {
       $version_num = $backups_result->num_rows;
 
       $post_new_sql = "INSERT INTO nolatin_backups (friendly_name, json_content, version) VALUES (?,?,?)";
-      $post_new_stmt = $conn->prepare($update_old_sql);
+      $post_new_stmt = $conn->prepare($post_new_sql);
       $post_new_stmt->bind_param("ssi", $friendly_name, $json_content, $version_num);
       $post_new_stmt->execute();
     }
