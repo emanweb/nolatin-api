@@ -98,6 +98,9 @@ if ($_POST) {
   $update_original_stmt->bind_param("ss", $json_content, $friendly_name);
   $update_original_stmt->execute();
 
+  $response = "Friendly name updated successfully.";
+
+  echo json_encode();
   // Close the database connection
   mysqli_close($conn);
 }
