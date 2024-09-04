@@ -100,7 +100,7 @@ if ($_POST) {
 
   $response = "Friendly name updated successfully.";
 
-  echo json_encode();
+  echo json_encode($response);
   // Close the database connection
   mysqli_close($conn);
 }
